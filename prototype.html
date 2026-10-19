@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Skill Passport — Universal Prototype</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f5f7fb;color:#172033;overflow-x:hidden}
+.sidebar{position:fixed;inset:0 auto 0 0;width:248px;background:#101827;color:#fff;padding:22px 15px;z-index:100}
+.logo{font-size:22px;font-weight:850;padding:8px 12px 25px}
+.logo em{font-style:normal;color:#55d6a4}
+.nav{padding:11px 12px;border-radius:10px;margin:5px 0;color:#aeb8c8;cursor:pointer;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500}
+.nav.active,.nav:hover{background:#253247;color:#fff}
+main{margin-left:248px;padding:30px 42px;max-width:1450px}
+.screen{display:none}
+.screen.active{display:block}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+h1{margin:0;font-size:28px;letter-spacing:-0.5px}
+.sub,.muted{color:#6b7688;font-size:13px}
+.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#dbeafe;color:#2563eb;font-weight:800}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}
+.card{background:#fff;border:1px solid #e5e9f0;border-radius:16px;padding:22px;box-shadow:0 4px 16px rgba(30,41,59,0.04);margin-bottom:18px;position:relative}
+.wide{grid-column:span 2}
+.title{font-weight:780;font-size:18px;margin-bottom:14px}
+.metric{font-size:30px;font-weight:850;margin-top:7px}
+.bar{height:8px;background:#e8edf2;border-radius:20px;margin-top:12px;overflow:hidden}
+.fill{height:100%;background:#10b981;border-radius:20px;transition:width 0.4s ease}
+.tag{display:inline-block;padding:5px 10px;border-radius:999px;background:#ecfdf5;color:#047857;font-size:11px;font-weight:750}
+.tag.orange{background:#fff7ed;color:#c2410c}
+.tag.blue{background:#eff6ff;color:#1d4ed8}
+.tag.purple{background:#f3e8ff;color:#7e22ce}
+.tag.green{background:#dcfce7;color:#15803d}
+.row{display:flex;justify-content:space-between;align-items:center;gap:15px;border:1px solid #edf0f4;padding:14px;border-radius:12px;margin:10px 0;background:#fff}
+.icon{width:36px;height:36px;border-radius:9px;background:#eef2ff;display:grid;place-items:center;font-size:18px;flex-shrink:0}
+.left{display:flex;align-items:center;gap:11px}
+.btn{border:0;border-radius:9px;background:#2563eb;color:white;font-weight:700;padding:10px 16px;cursor:pointer;font-size:13px;transition:all 0.2s}
+.btn:hover{filter:brightness(1.08)}
+.btn.green{background:#059669}
+.btn.light-green{background:#ecfdf5;color:#059669;border:1px solid #a7f3d0}
+.btn.light{background:#edf4ff;color:#2563eb}
+.btn.gray{background:#edf0f4;color:#344054}
+.back{color:#2563eb;font-weight:750;cursor:pointer;margin-bottom:15px;display:inline-block}
+.steps{display:flex;gap:10px;margin:18px 0}
+.step{flex:1;text-align:center;padding:11px 8px;background:#e8edf3;border-radius:9px;font-size:12px;font-weight:700;color:#64748b}
+.step.done{background:#d1fae5;color:#047857}
+.step.now{background:#dbeafe;color:#1d4ed8}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,0.6);display:none;align-items:center;justify-content:center;padding:20px;z-index:999;backdrop-filter:blur(3px)}
+.modal.show{display:flex}
+.modalbox{max-width:560px;width:100%;background:#fff;border-radius:18px;padding:28px;box-shadow:0 20px 40px rgba(0,0,0,0.15)}
+.quiz{background:#f8fafc;padding:15px;border-radius:10px;margin:14px 0;border:1px solid #e2e8f0}
+.notice{background:#eff6ff;border:1px solid #bfdbfe;padding:13px;border-radius:11px;color:#1e40af;font-size:13px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.profile-select{padding:9px 14px;border-radius:8px;border:1px solid #dbe3ed;background:#fff;font-weight:600;color:#172033;cursor:pointer;outline:none;font-size:14px;appearance:none;padding-right:30px;background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2214%22%20height%3D%2214%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23333%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.terminal{background:#0a101d;color:#7ee787;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;padding:18px 22px;border-radius:12px;font-size:12.5px;line-height:1.7;margin:16px 0;box-shadow:inset 0 2px 6px rgba(0,0,0,0.4);white-space:pre-wrap}
+.input-field{padding:10px 14px;border-radius:9px;border:1px solid #d1d5db;width:100%;font-size:14px;outline:none}
+.pill-badge{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;font-size:12.5px;font-weight:700}
+.pill-green{background:#dcfce7;color:#15803d}
+.pill-gray{background:#f3f4f6;color:#4b5563;cursor:pointer;border:1px dashed #cbd5e1}
+
+/* AI Career Coach Chat Widget */
+.ai-coach{position:fixed;bottom:20px;right:20px;width:340px;background:#fff;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,0.15);border:1px solid #e5e9f0;display:flex;flex-direction:column;z-index:90;overflow:hidden;transition:transform 0.3s ease}
+.ai-coach-header{background:#101827;color:#fff;padding:15px;display:flex;justify-content:space-between;align-items:center}
+.ai-coach-header b{font-size:15px}
+.ai-coach-header p{margin:2px 0 0;font-size:11px;color:#94a3b8}
+.ai-coach-body{padding:15px;height:300px;overflow-y:auto;background:#f8fafc;display:flex;flex-direction:column;gap:12px}
+.ai-msg{background:#fff;padding:12px;border-radius:12px;font-size:13px;color:#334155;border:1px solid #e2e8f0;box-shadow:0 2px 4px rgba(0,0,0,0.02);align-self:flex-start;max-width:90%}
+.user-msg{background:#2563eb;color:#fff;padding:12px;border-radius:12px;font-size:13px;align-self:flex-end;max-width:90%}
+.ai-coach-footer{padding:12px;background:#fff;border-top:1px solid #e5e9f0;display:flex;gap:8px}
+.ai-input{flex:1;padding:10px;border-radius:8px;border:1px solid #cbd5e1;font-size:13px;outline:none}
+
+/* Modifiers for minimized coach */
+.ai-coach.minimized .ai-coach-body,
+.ai-coach.minimized .ai-coach-footer { display: none; }
+
+/* Initial Onboarding Fullscreen */
+#onboarding{position:fixed;inset:0;background:#f5f7fb;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center}
+.ob-card{background:#fff;padding:40px;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.08);max-width:600px;width:100%}
+.ob-title{font-size:32px;font-weight:850;margin-bottom:10px}
+.ob-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:30px}
+.ob-option{border:2px solid #e2e8f0;border-radius:12px;padding:20px;cursor:pointer;transition:all 0.2s}
+.ob-option:hover{border-color:#2563eb;background:#eff6ff}
+.ob-icon{font-size:32px;margin-bottom:10px}
+
+/* Resource Links styling */
+.resource-link{display:flex;align-items:center;justify-content:space-between;padding:12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;text-decoration:none;color:#0f172a;font-weight:600;font-size:13px;margin-top:8px;transition:all 0.2s}
+.resource-link:hover{background:#eff6ff;border-color:#bfdbfe}
+.resource-link span{color:#2563eb}
+
+@media(max-width:900px){
+  .sidebar{width:100%;height:60px;bottom:0;top:auto;display:flex;justify-content:space-around;padding:6px;align-items:center}
+  .logo{display:none}
+  .nav{margin:0;padding:8px;font-size:11px;flex-direction:column;gap:3px}
+  main{margin-left:0;margin-bottom:70px;padding:20px}
+  .grid,.two{grid-template-columns:1fr}
+  .wide{grid-column:span 1}
+  .ai-coach{bottom:70px;right:10px;width:calc(100% - 20px)}
+  .ob-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ONBOARDING FLOW -->
+<div id="onboarding">
+  <div class="ob-card" id="ob-step-1">
+    <div class="ob-title">Welcome to Skill Passport</div>
+    <p class="muted" style="font-size:16px">Turn your ambition into verified readiness. Tell us your track.</p>
+    
+    <div class="ob-grid">
+      <div class="ob-option" onclick="selectTrack('software', false)">
+        <div class="ob-icon">💻</div>
+        <b>Software & Tech</b>
+        <p class="muted">Students & Developers</p>
+      </div>
+      <div class="ob-option" onclick="selectTrack('industrial', true)">
+        <div class="ob-icon">🏭</div>
+        <b>Industrial Reskilling</b>
+        <p class="muted">Factory & Automation</p>
+        <span class="tag purple" style="margin-top:10px">PREMIUM</span>
+      </div>
+      <div class="ob-option" onclick="selectTrack('data', true)">
+        <div class="ob-icon">📊</div>
+        <b>Data Analytics</b>
+        <p class="muted">Analysts & Scientists</p>
+        <span class="tag purple" style="margin-top:10px">PREMIUM</span>
+      </div>
+      <div class="ob-option" onclick="selectTrack('cyber', true)">
+        <div class="ob-icon">🛡️</div>
+        <b>Cybersecurity</b>
+        <p class="muted">SOC & Network</p>
+        <span class="tag purple" style="margin-top:10px">PREMIUM</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ob-card" id="ob-step-evidence" style="display:none">
+    <div class="ob-title">Connect your proof</div>
+    <p class="muted" style="font-size:16px" id="ob-evidence-desc">Skill Passport relies on verifiable data, not self-reported skills.</p>
+    
+    <div style="margin:30px 0;text-align:left;background:#f8fafc;padding:20px;border-radius:12px;border:1px solid #e2e8f0" id="ob-evidence-box">
+      <!-- Injected by JS -->
+    </div>
+    
+    <button class="btn" style="width:100%;font-size:16px;padding:14px" onclick="finishOnboarding()">Initialize Passport</button>
+  </div>
+</div>
+
+<aside class="sidebar">
+  <div class="logo">Skill<em>Passport</em></div>
+  <div class="nav active" onclick="show('dashboard',this)"><span>▦</span> <span>Dashboard</span></div>
+  <div class="nav" onclick="show('factory',this)"><span>🎯</span> <span>Target Job</span></div>
+  <div class="nav" onclick="show('skills',this)"><span>◈</span> <span>Skill Gap</span></div>
+  <div class="nav" onclick="show('verify',this)"><span>✓</span> <span>Verification</span></div>
+  <div class="nav" onclick="show('passport',this)"><span>🪪</span> <span>Skill Passport</span></div>
+  <div class="nav" onclick="show('resume',this)"><span>▤</span> <span>AI Resume</span></div>
+</aside>
+
+<main>
+  <!-- Screen: Dashboard -->
+  <section id="dashboard" class="screen active">
+    <div class="top">
+      <div><h1>Good morning, Piyush</h1><div class="sub" id="dash-sub">Your software engineering internship dashboard</div></div>
+      <div style="display:flex;align-items:center;gap:15px">
+        <select class="profile-select" id="profile-dropdown" onchange="handleDropdownChange(this)">
+          <optgroup label="Students">
+            <option value="software">Target: Software Dev Intern</option>
+          </optgroup>
+          <optgroup label="Premium Tracks 🔒">
+            <option value="data">Target: Data Analyst 🔒</option>
+            <option value="cyber">Target: Cybersecurity Analyst 🔒</option>
+            <option value="industrial">Target: Robot Line Operator 🔒</option>
+          </optgroup>
+        </select>
+        <div style="display:flex;align-items:center;gap:10px"><div class="avatar">PK</div><b id="dash-role">B.Tech CSE Student</b></div>
+      </div>
+    </div>
+    
+    <div class="grid">
+      <div class="card">
+        <div class="muted">Job Readiness</div>
+        <div class="metric" id="readiness-score">65%</div>
+        <div class="bar"><div class="fill" id="readiness-fill" style="width:65%"></div></div>
+        <p class="muted" id="readiness-text">4 / 6 skills verified</p>
+      </div>
+      <div class="card">
+        <div class="muted">Target timeline</div>
+        <div class="metric" style="font-size:22px" id="deadline-val">Fall 2026</div>
+        <p class="muted" id="deadline-sub">Applying for campus placements</p>
+        <button class="btn" onclick="show('factory')">View Target</button>
+      </div>
+      <div class="card">
+        <div class="muted">Next checkpoint</div>
+        <div class="metric" style="font-size:20px" id="next-checkpoint">REST API Integration</div>
+        <p class="muted">Ready for evidence verification</p>
+        <button class="btn light" onclick="show('verify')">Verify Now</button>
+      </div>
+      
+      <div class="card wide">
+        <div class="title" id="transition-title">Your path to Software Development Intern</div>
+        <div class="notice" id="transition-notice"><b>AI gap analysis:</b> You have strong evidence in Core Java and Git. Complete REST API Integration to reach 80% readiness.</div>
+        <div id="dash-skills-list">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="title">Active Integrations</div>
+        <p class="muted">Connected data sources powering your Skill Passport:</p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px" id="active-integrations-list">
+          <!-- Injected by JS -->
+        </div>
+        <button class="btn light" style="margin-top:20px;width:100%" onclick="show('verify')">Manage Evidence</button>
+      </div>
+      
+      <!-- TARGET COMPANIES CARD (DASHBOARD) -->
+      <div class="card wide" style="grid-column:span 3">
+        <div class="title">Target Companies & Open Roles</div>
+        <p class="muted">Based on your verified skills and current trajectory. Apply directly with your Skill Passport.</p>
+        <div id="dashboard-jobs-list" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:15px;margin-top:15px">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen: Target Job Analysis -->
+  <section id="factory" class="screen">
+    <div class="back" onclick="show('dashboard')">← Dashboard</div>
+    <h1>Target Job Analysis</h1>
+    <p class="sub">Grounding skill requirements against market benchmarks.</p>
+    <div class="two">
+      <div class="card">
+        <div class="title">Career Goal</div>
+        <p><b id="plan-box1-val">Software Development Intern</b></p>
+        <p class="muted" id="plan-box1-sub">Targeting Tier-1 Tech & Product Companies<br>Current Profile: B.Tech CSE (Data Science)</p>
+        <span class="tag orange" id="plan-tag">FALL 2026 PLACEMENTS</span>
+      </div>
+      <div class="card">
+        <div class="title">Key Expectations</div>
+        <p><b id="plan-box2-title">Backend & Algorithms Core</b></p>
+        <p class="muted" id="plan-box2-sub">Proven ability in building clean REST APIs, writing modular OOP code, and solving algorithmic challenges with optimal time/space complexity.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen: Skill Gap -->
+  <section id="skills" class="screen">
+    <div class="back" onclick="show('dashboard')">← Dashboard</div>
+    <h1>AI Skill Gap Analysis</h1>
+    <p class="sub">Dynamic mapping of current verified proof versus target role requirements.</p>
+    
+    <div class="two">
+      <div class="card">
+        <div class="title" id="gap-title">B.Tech Student → Software Development Intern</div>
+        <div id="gap-skills-list">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+      
+      <!-- EDTECH RESOURCES CARD -->
+      <div class="card">
+        <div class="title">Recommended Learning Resources</div>
+        <p class="muted">Practice here to build evidence for your next checkpoint.</p>
+        <div id="gap-resources-list">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen: Verification -->
+  <section id="verify" class="screen">
+    <div class="back" onclick="show('dashboard')">← Dashboard</div>
+    <p class="sub" style="margin-bottom:12px">Course completion alone does not equal skill verification.</p>
+    
+    <div class="card">
+      <h2 style="margin:0 0 18px 0;font-size:22px" id="verify-main-title">REST API Integration</h2>
+      
+      <div class="steps">
+        <div class="step done" id="step-learn">Learn ✓</div>
+        <div class="step now" id="step-checkpoint">Checkpoint</div>
+        <div class="step done" id="step-evidence">Evidence ✓</div>
+        <div class="step" id="step-review">AI Review</div>
+      </div>
+
+      <div class="row" style="background:#fff">
+        <div><b style="font-size:15px">Learning modules</b><div class="muted" id="verify-learn-sub">Concepts and worked examples for REST API Integration</div></div>
+        <span class="check" style="font-size:14px">✓ Complete</span>
+      </div>
+
+      <div class="row" style="background:#fff">
+        <div><b style="font-size:15px">Checkpoint</b><div class="muted">One question - must be correct</div></div>
+        <button class="btn" id="btn-take-test" onclick="openTestModal()">Take test</button>
+      </div>
+
+      <div class="row" style="background:#fff">
+        <div><b style="font-size:15px">Evidence sources</b><div class="muted">Read-only OAuth connection. The AI reads the raw work.</div></div>
+        <div style="display:flex;gap:10px;align-items:center" id="verify-evidence-badges">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <div class="row" style="background:#fff">
+        <div><b style="font-size:15px">AI evidence review</b><div class="muted">Scores the skill against the skill graph.</div></div>
+        <button class="btn light-green" id="run-ai-btn" onclick="runAIVerification()">Run AI verification</button>
+      </div>
+
+      <div class="terminal" id="terminal-box">Awaiting AI verification trigger...</div>
+    </div>
+
+    <!-- Peer & Mentor Vouchers Card -->
+    <div class="card">
+      <div class="title" style="margin-bottom:6px">Peer & mentor vouches</div>
+      <p class="muted" style="margin-bottom:18px">Each vouch adds weight to a verified skill and is sealed into the passport hash.</p>
+      
+      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">
+        <input type="text" id="vouch-name" class="input-field" placeholder="Peer or mentor name" style="flex:2;min-width:200px">
+        <select id="vouch-skill-select" class="profile-select" style="flex:1.5;min-width:180px">
+          <!-- Injected by JS -->
+        </select>
+        <button class="btn" onclick="addVouch()" style="padding:10px 22px">Add vouch</button>
+      </div>
+
+      <div id="vouches-list">
+        <div class="row" style="border:1px solid #edf0f4;padding:12px 18px">
+          <b style="font-size:15px">edumantra</b>
+          <span class="muted" style="font-weight:600">Core Java & OOP</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen: Skill Passport -->
+  <section id="passport" class="screen">
+    <div class="back" onclick="show('dashboard')">← Dashboard</div>
+    <h1>Skill Passport</h1>
+    <p class="sub">A tamper-proof, evidence-backed record of verified competencies.</p>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div><h2 style="margin:0">Piyush Kumar</h2><div class="muted" id="pass-role">B.Tech CSE (Data Science) Student</div></div>
+        <span class="tag">VERIFIED PASSPORT HASH #941B</span>
+      </div>
+      <hr style="border:0;border-top:1px solid #edf0f4;margin:20px 0">
+      <div class="title">Sealed Capabilities</div>
+      <div id="passport-skills-list">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen: AI Resume -->
+  <section id="resume" class="screen">
+    <div class="back" onclick="show('dashboard')">← Dashboard</div>
+    <h1>AI Tailored Resume</h1>
+    <p class="sub">Generated strictly from verified Skill Passport credentials.</p>
+    
+    <div class="card" style="line-height:1.6">
+      <h2>Piyush Kumar</h2>
+      <b id="res-head">B.Tech CSE Student | Aspiring Software Developer</b>
+      <hr style="border:0;border-top:1px solid #edf0f4;margin:15px 0">
+      <h3>Professional Summary</h3>
+      <p id="res-sum">Computer Science and Engineering student specializing in Data Science at SRM Institute. Strong verified foundation in Java and version control...</p>
+      <h3>Verified Competencies</h3>
+      <ul id="resume-skill-list" style="margin-bottom:0">
+        <!-- Injected by JS -->
+      </ul>
+      <button class="btn green" style="margin-top:25px" onclick="alert('Resume synchronized with latest Skill Passport hashes.')">Export Verified Resume PDF</button>
+    </div>
+
+    <!-- TARGET COMPANIES CARD (RESUME BOTTOM) -->
+    <div class="card" style="margin-top:20px">
+      <div class="title">Apply with this Resume</div>
+      <p class="muted">Your tailored resume is perfectly matched for these positions. Click to 1-Click apply using your Skill Passport.</p>
+      <div id="resume-jobs-list" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:15px;margin-top:15px">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- AI Career Coach Widget (With minimize toggle) -->
+<div class="ai-coach" id="ai-coach-widget">
+  <div class="ai-coach-header" style="cursor:pointer" onclick="toggleCoach()">
+    <div>
+      <b>Skill Passport AI</b>
+      <p>Private, on-device career guidance (MLX)</p>
+    </div>
+    <span id="coach-toggle-icon" style="font-size:20px;line-height:1">×</span>
+  </div>
+  <div class="ai-coach-body" id="ai-chat-messages">
+    <!-- Initial Greeting injected by JS -->
+  </div>
+  <div class="ai-coach-footer" id="ai-coach-footer">
+    <input type="text" class="ai-input" id="ai-input-field" placeholder="Ask about your next career step..." onkeypress="if(event.key === 'Enter') sendChatMessage()">
+    <button class="btn" onclick="sendChatMessage()">Send</button>
+  </div>
+</div>
+
+<!-- Source Login Modal -->
+<div class="modal" id="source-login-modal">
+  <div class="modalbox" style="text-align:center;max-width:400px">
+    <h2 id="login-modal-title" style="margin-top:0">Connect GitHub</h2>
+    <p class="muted" style="margin-bottom:25px">Authorize Skill Passport (read-only) to verify your artifacts.</p>
+    <input type="text" class="input-field" placeholder="Username or Email" style="margin-bottom:15px">
+    <input type="password" class="input-field" placeholder="Password" style="margin-bottom:20px">
+    <button class="btn green" style="width:100%;font-size:15px;padding:12px" onclick="confirmSourceLogin()">Authorize App</button>
+    <button class="btn gray" style="width:100%;margin-top:10px;font-size:15px;padding:12px" onclick="closeModals()">Cancel</button>
+  </div>
+</div>
+
+<!-- Test Modal -->
+<div class="modal" id="test-modal">
+  <div class="modalbox">
+    <h2 id="modal-title" style="margin-top:0">REST API Checkpoint</h2>
+    <p class="muted">Pass mark: Correct response required to advance.</p>
+    <div class="quiz">
+      <b id="modal-q-text">Which HTTP method is idempotent and explicitly used to replace a target resource completely?</b>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px" id="modal-q-opts">
+        <label><input type="radio" name="q1"> POST</label>
+        <label><input type="radio" name="q1" id="q1-correct"> PUT</label>
+        <label><input type="radio" name="q1"> PATCH</label>
+      </div>
+    </div>
+    <div style="margin-top:20px;display:flex;gap:10px">
+      <button class="btn green" onclick="submitCheckpoint()">Submit Answer</button>
+      <button class="btn gray" onclick="closeModals()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal with Card Details -->
+<div class="modal" id="payment-modal">
+  <div class="modalbox" style="text-align:center;max-width:450px">
+    <div style="font-size:40px;margin-bottom:10px">🔒</div>
+    <h2 style="margin-top:0" id="pay-title">Unlock Premium Track</h2>
+    <p class="muted" style="margin-bottom:25px" id="pay-desc">Access industry-grade assessments, real-world lab environments, and verified employer network forwarding.</p>
+    
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:20px;text-align:left">
+      <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+        <b>Skill Passport Pro</b>
+        <b id="pay-price" style="color:#059669">$49.00</b>
+      </div>
+      <ul style="font-size:13px;color:#4b5563;padding-left:20px;margin:0">
+        <li>Unlimited AI code/log verification</li>
+        <li>Direct job board applications</li>
+        <li>Sealed cryptographic PDF generation</li>
+      </ul>
+    </div>
+    
+    <!-- CARD PAYMENT INPUT FIELDS -->
+    <div style="text-align:left; margin-bottom: 20px;">
+      <label style="font-size:12px; font-weight:600; color:#4b5563;">Cardholder Name</label>
+      <input type="text" class="input-field" placeholder="John Doe" style="margin-bottom:10px; margin-top:4px;">
+      
+      <label style="font-size:12px; font-weight:600; color:#4b5563;">Card Number</label>
+      <input type="text" class="input-field" placeholder="0000 0000 0000 0000" style="margin-bottom:10px; margin-top:4px;">
+      
+      <div style="display:flex; gap:10px;">
+        <div style="flex:1;">
+          <label style="font-size:12px; font-weight:600; color:#4b5563;">Expiry Date</label>
+          <input type="text" class="input-field" placeholder="MM/YY" style="margin-top:4px;">
+        </div>
+        <div style="flex:1;">
+          <label style="font-size:12px; font-weight:600; color:#4b5563;">CVV</label>
+          <input type="password" class="input-field" placeholder="***" style="margin-top:4px;">
+        </div>
+      </div>
+    </div>
+    
+    <button class="btn green" style="width:100%;font-size:16px;padding:14px" onclick="processPayment()">Pay & Unlock Track</button>
+    <button class="btn gray" style="width:100%;margin-top:10px;font-size:15px;padding:12px" onclick="cancelPayment()">Cancel</button>
+  </div>
+</div>
+
+<script>
+// Profile Data Config
+const profileData = {
+  software: {
+    dashSub: "Your software engineering internship dashboard", dashRole: "B.Tech CSE (Data Science)",
+    readinessScore: "65%", readinessText: "4 / 6 skills verified", deadlineVal: "Fall 2026", deadlineSub: "Applying for campus placements",
+    nextCheckpoint: "REST API Integration", transitionTitle: "Your path to Software Development Intern",
+    transitionNotice: "<b>AI gap analysis:</b> You have strong evidence in Core Java and Git. Complete REST API Integration to reach 80% readiness.",
+    dashSkills: `
+      <div class="row"><div class="left"><div class="icon">☕</div><div><b>Core Java & OOP</b><div class="muted">Verified via automated assessment + GitHub repo</div></div></div><span class="tag">VERIFIED</span></div>
+      <div class="row"><div class="left"><div class="icon">🌲</div><div><b>Data Structures & Algorithms</b><div class="muted">59 LeetCode problems verified + clean GitHub commits</div></div></div><span class="tag">VERIFIED</span></div>
+      <div class="row"><div class="left"><div class="icon">🌐</div><div><b>REST API Integration</b><div class="muted">Prerequisites met · Ready for AI evidence scan</div></div></div><span class="tag orange">READY TO VERIFY</span></div>
+    `,
+    integrations: `
+      <div style="display:flex;align-items:center;justify-content:space-between"><span>🐙 GitHub OAuth</span><span class="tag">LIVE</span></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span>⚡ LeetCode API</span><span class="tag">LIVE</span></div>
+    `,
+    planBox1Val: "Software Development Intern", planBox1Sub: "Targeting Tier-1 Tech & Product Companies<br>Current Profile: B.Tech CSE (Data Science)", planTag: "FALL 2026 PLACEMENTS",
+    planBox2Title: "Backend & Algorithms Core", planBox2Sub: "Proven ability in building clean REST APIs, writing modular OOP code, and solving algorithmic challenges with optimal time/space complexity.",
+    gapTitle: "B.Tech Student → Software Development Intern",
+    gapSkills: `
+      <div class="row"><div><b>Core Java & OOP</b><div class="muted">Required · Verified with 14 repos</div></div><span class="check">✓ VERIFIED</span></div>
+      <div class="row"><div><b>Data Structures & Algorithms</b><div class="muted">Required · 59 LeetCode questions solved</div></div><span class="check">✓ VERIFIED</span></div>
+      <div class="row"><div><b>REST API Integration</b><div class="muted">Required · Awaiting evidence review</div></div><button class="btn" onclick="show('verify')">Verify Now</button></div>
+    `,
+    resourcesHTML: `
+      <a href="#" class="resource-link"><div>📺 Telusko</div><span>Core Java Tutorials ↗</span></a>
+      <a href="#" class="resource-link"><div>📺 Abdul Bari</div><span>Algorithms & Recursion ↗</span></a>
+      <a href="#" class="resource-link"><div>📺 Kunal Kushwaha</div><span>DSA Practice Bootcamp ↗</span></a>
+      <a href="#" class="resource-link"><div>⚡ LeetCode</div><span>Blind 75 Problem Set ↗</span></a>
+    `,
+    jobsHTML: `
+      <div class="row" style="margin:0;flex-direction:column;align-items:flex-start">
+        <div style="display:flex;justify-content:space-between;width:100%"><b>Atlassian</b><span class="tag green">50 LPA TARGET</span></div>
+        <div class="muted">Software Engineer Intern</div>
+        <button class="btn light" style="width:100%;margin-top:10px" onclick="alert('Applying using Skill Passport Hash...')">Apply with Passport</button>
+      </div>
+      <div class="row" style="margin:0;flex-direction:column;align-items:flex-start">
+        <div style="display:flex;justify-content:space-between;width:100%"><b>Microsoft</b><span class="tag">TOP TIER</span></div>
+        <div class="muted">SDE Intern (Campus)</div>
+        <button class="btn light" style="width:100%;margin-top:10px" onclick="alert('Applying using Skill Passport Hash...')">Apply with Passport</button>
+      </div>
+    `,
+    verifyMainTitle: "REST API Integration", verifyLearnSub: "Concepts and worked examples for REST API Integration",
+    verifyBadges: `
+      <div id="badge-1" class="pill-badge pill-green" onclick="openLoginModal('GitHub')"><span id="text-1">GitHub connected ✓</span></div>
+      <div id="badge-2" class="pill-badge pill-green" onclick="openLoginModal('LeetCode')"><span id="text-2">LeetCode connected ✓</span></div>
+    `,
+    vouchOptions: `<option value="Core Java & OOP">Core Java & OOP</option><option value="Data Structures & Algorithms">Data Structures & Algorithms</option><option value="REST API Integration">REST API Integration</option>`,
+    passportRole: "B.Tech CSE (Data Science) Student",
+    passportSkills: `
+      <div class="row"><div><b>Core Java & OOP</b><div class="muted">14 repositories scanned • 1 Mentor vouch</div></div><span class="check">✓ VERIFIED</span></div>
+      <div class="row"><div><b>Data Structures & Algorithms</b><div class="muted">59 LeetCode problems verified via API</div></div><span class="check">✓ VERIFIED</span></div>
+      <div class="row" id="passport-api-row"><div><b>REST API Integration</b><div class="muted" id="passport-api-status">Verification pending</div></div><span class="tag orange" id="passport-api-tag">PENDING</span></div>
+    `,
+    modalQText: "Which HTTP method is idempotent and explicitly used to replace a target resource completely?",
+    modalQOpts: `<label><input type="radio" name="q"> POST</label><label><input type="radio" name="q" id="q-correct"> PUT</label><label><input type="radio" name="q"> PATCH</label>`,
+    aiGreeting: `<div class="ai-msg">Hi Piyush! I see you're building towards a 50 LPA placement. Want me to pull up Abdul Bari's recursion concepts or some LeetCode array problems to practice?</div>`,
+    aiResponse: `<div class="ai-msg">Focus on completing your REST API checkpoint first. Watch the Telusko Spring Boot tutorials, then connect your GitHub repo to verify it. You've got this!</div>`,
+    resHead: "B.Tech CSE (Data Science) | Aspiring Software Engineer",
+    resSum: "Targeting top-tier technical placements. Strong verified foundation in Java OOP and version control, currently actively building data structure problem-solving skills for intensive internship roles.",
+    resSkills: `<li><b>Core Java & OOP:</b> Verified via codebase analysis and mentor validation.</li><li><b>Data Structures & Algorithms:</b> Verified with 59 algorithmic challenges solved on LeetCode.</li>`
+  },
+  data: {
+    dashSub: "Your Data Analyst career dashboard", dashRole: "B.Tech CSE Student",
+    readinessScore: "50%", readinessText: "3 / 6 skills verified", deadlineVal: "Spring 2027", deadlineSub: "Applying for analyst roles",
+    nextCheckpoint: "Advanced SQL Queries", transitionTitle: "Your path to Data Analyst",
+    transitionNotice: "<b>AI gap analysis:</b> You have solid Python fundamentals. You need verified evidence in Advanced SQL to be job-ready.",
+    dashSkills: `
+      <div class="row"><div class="left"><div class="icon">🐍</div><div><b>Python Data Manipulation</b><div class="muted">Verified via Pandas notebook scans</div></div></div><span class="tag">VERIFIED</span></div>
+      <div class="row"><div class="left"><div class="icon">🗄️</div><div><b>Advanced SQL</b><div class="muted">Prerequisites met · Ready for AI evidence scan</div></div></div><span class="tag orange">READY TO VERIFY</span></div>
+    `,
+    integrations: `
+      <div style="display:flex;align-items:center;justify-content:space-between"><span>🐙 GitHub OAuth</span><span class="tag">LIVE</span></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span>📊 Kaggle Profile</span><span class="tag">LIVE</span></div>
+    `,
+    planBox1Val: "Data Analyst", planBox1Sub: "Targeting Enterprise Analytics Teams<br>Current Profile: B.Tech CSE", planTag: "SPRING 2027",
+    planBox2Title: "Data Extraction & Visualization", planBox2Sub: "Extract data using complex SQL joins, clean data with Python/Pandas, and build business dashboards.",
+    gapTitle: "B.Tech Student → Data Analyst",
+    gapSkills: `
+      <div class="row"><div><b>Python Data Manipulation</b><div class="muted">Required · Verified with 3 Notebooks</div></div><span class="check">✓ VERIFIED</span></div>
+      <div class="row"><div><b>Advanced SQL</b><div class="muted">Required · Awaiting evidence review</div></div><button class="btn" onclick="show('verify')">Verify Now</button></div>
+    `,
+    resourcesHTML: `
+      <a href="#" class="resource-link"><div>🎓 DataCamp</div><span>SQL for Business ↗</span></a>
+      <a href="#" class="resource-link"><div>🎓 Coursera</div><span>Google Data Analytics ↗</span></a>
+      <a href="#" class="resource-link"><div>⚡ HackerRank</div><span>SQL Advanced Queries ↗</span></a>
+    `,
+    jobsHTML: `
+      <div class="row" style="margin:0;flex-direction:column;align-items:flex-start">
+        <div style="display:flex;justify-content:space-between;width:100%"><b>Deloitte</b><span class="tag blue">ENTERPRISE</span></div>
+        <div class="muted">Data Analyst Trainee</div>
+        <button class="btn light" style="width:100%;margin-top:10px" onclick="alert('Applying using Skill Passport Hash...')">Apply with Passport</button>
+      </div>
+      <div class="row" style="margin:0;flex-direction:column;align-items:flex-start">
+        <div style="display:flex;justify-content:space-between;width:100%"><b>Amazon</b><span class="tag">TOP TIER</span></div>
+        <div class="muted">Business Analyst Intern</div>
+        <button class="btn light" style="width:100%;margin-top:10px" onclick="alert('Applying using Skill Passport Hash...')">Apply with Passport</button>
+      </div>
+    `,
+    verifyMainTitle: "Advanced SQL Queries", verifyLearnSub: "Aggregations, Window Functions, and Query Optimization",
+    verifyBadges: `
+      <div id="badge-1" class="pill-badge pill-green" onclick="openLoginModal('GitHub')"><span id="text-1">GitHub connected ✓</span></div>
+      <div id="badge-2" class="pill-badge pill-green" onclick="openLoginModal('Kaggle')"><span id="text-2">Kaggle connected ✓</span></div>
+    `,
+    vouchOptions: `<option value="Python Data Manipulation">Python Data Manipulation</option><option value="Advanced SQL">Advanced SQL</option>`,
+    passportRole: "B.Tech CSE Student",
+    passportSkills: `
+      <div class="row"><div><b>Python Data Manipulation</b><div class="muted">3 Kaggle notebooks scanned</div></div><span class="check">✓ VERIFIED</span></div>
+      <div class="row" id="passport-api-row"><div><b>Advanced SQL</b><div class="muted" id="passport-api-status">Verification pending</div></div><span class="tag orange" id="passport-api-tag">PENDING</span></div>
+    `,
+    modalQText: "Which SQL clause is used to filter the results of an aggregate function?",
+    modalQOpts: `<label><input type="radio" name="q"> WHERE</label><label><input type="radio" name="q" id="q-correct"> HAVING</label><label><input type="radio" name="q"> GROUP BY</label>`,
+    aiGreeting: `<div class="ai-msg">Ready to tackle Advanced SQL? I can generate some practice queries for Window Functions.</div>`,
+    aiResponse: `<div class="ai-msg">Before taking the SQL checkpoint, practice writing ROW_NUMBER() and RANK() queries on HackerRank!</div>`,
+    resHead: "B.Tech CSE Student | Aspiring Data Analyst",
+    resSum: "Data Science student with verified capabilities in Python data manipulation. Currently advancing skills in complex SQL queries and business intelligence dashboards for enterprise data roles.",
+    resSkills: `<li><b>Python Data Manipulation:</b> Verified via structured Kaggle notebook scans.</li>`
+  },
+  cyber: {
+    dashSub: "Your Cybersecurity transition dashboard", dashRole: "IT Support Specialist",
+    readinessScore: "35%", readinessText: "2 / 6 skills verified", deadlineVal: "Q3 2027", deadlineSub: "Internal promotion target",
+    nextCheckpoint: "Threat Analysis & SIEM", transitionTitle: "Your path to Cybersecurity Analyst",
+    transitionNotice: "<b>AI gap analysis:</b> Excellent OS/Networking fundamentals. You need verified evidence in SIEM log analysis to transition.",
+    dashSkills: `
+      <div class="row"><div class="left"><div class="icon">🔌</div><div><b>IT Networking & OS</b><div class="muted">Verified via CompTIA mapping</div></div></div><span class="tag">VERIFIED</span></div>
+      <div class="row"><div class="left"><div class="icon">🔍</div><div><b>Threat Analysis & SIEM</b><div class="muted">Prerequisites met · Ready for lab scan</div></div></div><span class="tag orange">READY TO VERIFY</span></div>
+    `,
+    integrations: `
+      <div style="display:flex;align-items:center;justify-content:space-between"><span>🛡️ TryHackMe</span><span class="tag">LIVE</span></div>
+    `,
+    planBox1Val: "Cybersecurity Analyst", planBox1Sub: "Targeting Security Operations Centers (SOC)<br>Current Profile: IT Support", planTag: "Q3 2027",
+    planBox2Title: "Incident Detection & Triage", planBox2Sub: "Monitor networks for security breaches, investigate alerts using SIEM tools, and assist in incident response.",
+    gapTitle: "IT Support → Cybersecurity Analyst",
+    gapSkills: `
+      <div class="row"><div><b>IT Networking & OS</b><div class="muted">Required · Verified with prior experience</div></div><span class="check">✓ VERIFIED</span></div>
+      <div class="row"><div><b>Threat Analysis & SIEM</b><div class="muted">Required · Awaiting evidence review</div></div><button class="btn" onclick="show('verify')">Verify Now</button></div>
+    `,
+    resourcesHTML: `
+      <a href="#" class="resource-link"><div>🛡️ TryHackMe</div><span>SOC Level 1 Path ↗</span></a>
+      <a href="#" class="resource-link"><div>☠️ HackTheBox</div><span>Blue Team Labs ↗</span></a>
+      <a href="#" class="resource-link"><div>🎓 CompTIA</div><span>Security+ CertMaster ↗</span></a>
+    `,
+    jobsHTML: `
+      <div class="row" style="margin:0;flex-direction:column;align-items:flex-start">
+        <div style="display:flex;justify-content:space-between;width:100%"><b>CrowdStrike</b><span class="tag purple">SOC TIER 1</span></div>
+        <div class="muted">Security Analyst</div>
+        <button class="btn light" style="width:100%;margin-top:10px" onclick="alert('Applying using Skill Passport Hash...')">Apply with Passport</button>
+      </div>
+      <div class="row" style="margin:0;flex-direction:column;align-items:flex-start">
+        <div style="display:flex;justify-content:space-between;width:100%"><b>Cisco</b><span class="tag">NETWORK SEC</span></div>
+        <div class="muted">Cybersecurity Intern</div>
+        <button class="btn light" style="width:100%;margin-top:10px" onclick="alert('Applying using Skill Passport Hash...')">Apply with Passport</button>
+      </div>
+    `,
+    verifyMainTitle: "Threat Analysis & SIEM", verifyLearnSub: "Splunk log analysis, incident detection, and triage",
+    verifyBadges: `
+      <div id="badge-1" class="pill-badge pill-green" onclick="openLoginModal('TryHackMe')"><span id="text-1">TryHackMe connected ✓</span></div>
+    `,
+    vouchOptions: `<option value="IT Networking">IT Networking</option><option value="Threat Analysis & SIEM">Threat Analysis & SIEM</option>`,
+    passportRole: "IT Support Specialist",
+    passportSkills: `
+      <div class="row"><div><b>IT Networking & OS</b><div class="muted">Verified via professional history</div></div><span class="check">✓ VERIFIED</span></div>
+      <div class="row" id="passport-api-row"><div><b>Threat Analysis & SIEM</b><div class="muted" id="passport-api-status">Verification pending</div></div><span class="tag orange" id="passport-api-tag">PENDING</span></div>
+    `,
+    modalQText: "In a web server log, multiple 401 statuses followed by a 200 status from the same IP likely indicates:",
+    modalQOpts: `<label><input type="radio" name="q"> SQL Injection</label><label><input type="radio" name="q" id="q-correct"> Brute Force Attack</label><label><input type="radio" name="q"> DDoS</label>`,
+    aiGreeting: `<div class="ai-msg">Let's review SIEM logs. Do you want to run through a simulated Splunk lab today?</div>`,
+    aiResponse: `<div class="ai-msg">Make sure your TryHackMe SOC Level 1 path is complete before running the AI verification on your lab artifacts.</div>`,
+    resHead: "IT Support Professional | Transitioning to Cybersecurity",
+    resSum: "IT professional with verified expertise in networking and OS internals. Currently completing a verified pathway into SOC Tier 1 threat analysis.",
+    resSkills: `<li><b>IT Networking & OS:</b> Verified via CompTIA framework mapping and professional employment history.</li>`
+  },
+  industrial: {
+    dashSub: "Your automation transition dashboard", dashRole: "Machine Operator",
+    readinessScore: "42%", readinessText: "3 / 7 skills verified", deadlineVal: "6 Months", deadlineSub: "Robot arm planned for Line 3",
+    nextCheckpoint: "Robot Arm Operation", transitionTitle: "Your transition to Robot Line Operator",
+    transitionNotice: "<b>AI transition analysis:</b> Your current role overlaps with the future role. You need verified robot operation skills to be automation-ready.",
+    dashSkills: `
+      <div class="row"><div class="left"><div class="icon">🛡️</div><div><b>Industrial Safety (OSHA)</b><div class="muted">Verified via factory training portal</div></div></div><span class="tag">VERIFIED</span></div>
+      <div class="row"><div class="left"><div class="icon">🦾</div><div><b>Robot Arm Operation</b><div class="muted">Prerequisites met · Ready for simulator scan</div></div></div><span class="tag orange">READY TO VERIFY</span></div>
+    `,
+    integrations: `
+      <div style="display:flex;align-items:center;justify-content:space-between"><span>📋 Factory Training LMS</span><span class="tag">LIVE</span></div>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span>🏭 Siemens VR Sim</span><span class="tag">LIVE</span></div>
+    `,
+    planBox1Val: "Robot Line Operator", planBox1Sub: "Deployment window: January 2027<br>Current Profile: Machine Operator", planTag: "6 MONTHS",
+    planBox2Title: "Automation & Robotics", planBox2Sub: "Operate robot cell, perform safety checks, monitor faults and support basic PLC troubleshooting.",
+    gapTitle: "Machine Operator → Robot Line Operator",
+    gapSkills: `
+      <div class="row"><div><b>Industrial Safety (OSHA)</b><div class="muted">Required · Verified by Factory HR</div></div><span class="check">✓ VERIFIED</span></div>
+      <div class="row"><div><b>Robot Arm Operation</b><div class="muted">Required · Awaiting evidence review</div></div><button class="btn" onclick="show('verify')">Verify Now</button></div>
+    `,
+    resourcesHTML: `
+      <a href="#" class="resource-link"><div>🥽 Siemens VR</div><span>Robotics Simulator ↗</span></a>
+      <a href="#" class="resource-link"><div>📋 OSHA Portal</div><span>Safety Protocols ↗</span></a>
+    `,
+    jobsHTML: `
+      <div class="row" style="margin:0;flex-direction:column;align-items:flex-start">
+        <div style="display:flex;justify-content:space-between;width:100%"><b>Tesla</b><span class="tag purple">GIGAFACTORY</span></div>
+        <div class="muted">Automation Operator</div>
+        <button class="btn light" style="width:100%;margin-top:10px" onclick="alert('Applying using Skill Passport Hash...')">Apply with Passport</button>
+      </div>
+      <div class="row" style="margin:0;flex-direction:column;align-items:flex-start">
+        <div style="display:flex;justify-content:space-between;width:100%"><b>Foxconn</b><span class="tag">ROBOTICS</span></div>
+        <div class="muted">Robotics Line Tech</div>
+        <button class="btn light" style="width:100%;margin-top:10px" onclick="alert('Applying using Skill Passport Hash...')">Apply with Passport</button>
+      </div>
+    `,
+    verifyMainTitle: "Robot Arm Operation", verifyLearnSub: "Safe startup/shutdown sequence and calibration",
+    verifyBadges: `
+      <div id="badge-1" class="pill-badge pill-green" onclick="openLoginModal('Factory LMS')"><span id="text-1">LMS connected ✓</span></div>
+      <div id="badge-2" class="pill-badge pill-gray" onclick="openLoginModal('Siemens VR')"><span id="text-2">+ Connect Siemens VR</span></div>
+    `,
+    vouchOptions: `<option value="Industrial Safety">Industrial Safety</option><option value="Robot Arm Operation">Robot Arm Operation</option>`,
+    passportRole: "Machine Operator",
+    passportSkills: `
+      <div class="row"><div><b>Industrial Safety (OSHA)</b><div class="muted">Verified via internal factory HR LMS</div></div><span class="check">✓ VERIFIED</span></div>
+      <div class="row" id="passport-api-row"><div><b>Robot Arm Operation</b><div class="muted" id="passport-api-status">Verification pending</div></div><span class="tag orange" id="passport-api-tag">PENDING</span></div>
+    `,
+    modalQText: "Before operating a robot cell, what should be checked first?",
+    modalQOpts: `<label><input type="radio" name="q"> Production speed</label><label><input type="radio" name="q" id="q-correct"> Safety conditions & E-Stops</label><label><input type="radio" name="q"> Output target</label>`,
+    aiGreeting: `<div class="ai-msg">Your Robot Arm Operation checkpoint is next. Should we review the safety shutdown sequence?</div>`,
+    aiResponse: `<div class="ai-msg">Run the simulation in the Siemens VR app first, then link the account to verify your practical skills.</div>`,
+    resHead: "Machine Operator | Transitioning to Automation",
+    resSum: "Machine Operator with verified training in industrial safety protocols and heavy machine operation. Currently completing a structured, evidence-backed pathway toward robot-assisted production roles.",
+    resSkills: `<li><b>Industrial Safety (OSHA):</b> Verified via internal factory HR training logs.</li>`
+  }
+};
+
+let currentProfile = 'software';
+let pendingProfile = null;
+
+// Coach Toggle Logic
+function toggleCoach(){
+  const widget = document.getElementById('ai-coach-widget');
+  const icon = document.getElementById('coach-toggle-icon');
+  widget.classList.toggle('minimized');
+  icon.innerText = widget.classList.contains('minimized') ? '+' : '×';
+}
+
+// Navigation & Modals
+function show(id, el){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el){
+    document.querySelectorAll('.nav').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+}
+
+function openTestModal(){ document.getElementById('test-modal').classList.add('show'); }
+function openLoginModal(sourceName){
+  document.getElementById('login-modal-title').innerText = "Connect " + sourceName;
+  document.getElementById('source-login-modal').classList.add('show');
+}
+function closeModals(){
+  document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
+}
+
+// Onboarding Logic
+function selectTrack(track, isPremium){
+  if(isPremium){
+    pendingProfile = track;
+    document.getElementById('pay-title').innerText = "Unlock Premium Track";
+    document.getElementById('pay-desc').innerText = "Industrial and Data tracks require a verified lab integration subscription.";
+    document.getElementById('payment-modal').classList.add('show');
+  } else {
+    currentProfile = track;
+    showEvidenceStep();
+  }
+}
+
+function showEvidenceStep(){
+  document.getElementById('ob-step-1').style.display = 'none';
+  document.getElementById('ob-step-evidence').style.display = 'block';
+  
+  const evBox = document.getElementById('ob-evidence-box');
+  if(currentProfile === 'software' || currentProfile === 'data' || currentProfile === 'cyber'){
+    document.getElementById('ob-evidence-desc').innerText = "Connect your coding and lab platforms to begin.";
+    evBox.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px"><b>🐙 GitHub</b> <button class="btn light" onclick="openLoginModal('GitHub')">Connect</button></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><b>⚡ LeetCode/Labs</b> <button class="btn light" onclick="openLoginModal('Labs')">Connect</button></div>
+    `;
+  } else {
+    document.getElementById('ob-evidence-desc').innerText = "Connect your factory training portal or scan your badge.";
+    evBox.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px"><b>📋 Factory LMS</b> <button class="btn light" onclick="openLoginModal('LMS')">Connect</button></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><b>🥽 Simulator VR</b> <button class="btn light" onclick="openLoginModal('VR')">Connect</button></div>
+    `;
+  }
+}
+
+function finishOnboarding(){
+  document.getElementById('onboarding').style.display = 'none';
+  loadProfileData(currentProfile);
+}
+
+function confirmSourceLogin(){
+  closeModals();
+  alert('Account successfully linked! Evidence is now syncing.');
+}
+
+// Payment Logic
+function processPayment(){
+  currentProfile = pendingProfile;
+  closeModals();
+  
+  // Clean up dropdown if triggered from dashboard
+  const dd = document.getElementById('profile-dropdown');
+  for(let i=0; i<dd.options.length; i++){
+    if(dd.options[i].value === currentProfile){
+      dd.options[i].text = dd.options[i].text.replace(' 🔒', '');
+      dd.value = currentProfile;
+      break;
+    }
+  }
+  
+  if(document.getElementById('onboarding').style.display !== 'none'){
+    showEvidenceStep();
+  } else {
+    loadProfileData(currentProfile);
+  }
+}
+
+function cancelPayment(){
+  closeModals();
+  const dd = document.getElementById('profile-dropdown');
+  dd.value = currentProfile; // Revert dropdown
+}
+
+function handleDropdownChange(selectEl){
+  const val = selectEl.value;
+  if(selectEl.options[selectEl.selectedIndex].text.includes('🔒')){
+    pendingProfile = val;
+    document.getElementById('pay-title').innerText = "Unlock Premium Track";
+    document.getElementById('pay-desc').innerText = "Switching to this career track requires a premium verified lab subscription.";
+    document.getElementById('payment-modal').classList.add('show');
+  } else {
+    currentProfile = val;
+    loadProfileData(currentProfile);
+  }
+}
+
+// AI Career Coach Logic
+function sendChatMessage(){
+  const input = document.getElementById('ai-input-field');
+  const text = input.value.trim();
+  if(!text) return;
+  
+  const chatBody = document.getElementById('ai-chat-messages');
+  chatBody.innerHTML += `<div class="user-msg">${text}</div>`;
+  input.value = '';
+  chatBody.scrollTop = chatBody.scrollHeight;
+  
+  setTimeout(() => {
+    chatBody.innerHTML += profileData[currentProfile].aiResponse;
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }, 1000);
+}
+
+// UI Data Loader
+function loadProfileData(type){
+  const d = profileData[type];
+  if(!d) return;
+
+  // Dashboard Target Jobs Inject
+  document.getElementById('dashboard-jobs-list').innerHTML = d.jobsHTML;
+
+  // Resume Target Jobs Inject (Added to the bottom of the Resume Page)
+  document.getElementById('resume-jobs-list').innerHTML = d.jobsHTML;
+
+  // Dashboard Base Info
+  document.getElementById('dash-sub').innerText = d.dashSub;
+  document.getElementById('dash-role').innerText = d.dashRole;
+  document.getElementById('readiness-score').innerText = d.readinessScore;
+  document.getElementById('readiness-fill').style.width = d.readinessScore;
+  document.getElementById('readiness-text').innerText = d.readinessText;
+  document.getElementById('deadline-val').innerText = d.deadlineVal;
+  document.getElementById('deadline-sub').innerText = d.deadlineSub;
+  document.getElementById('next-checkpoint').innerText = d.nextCheckpoint;
+  document.getElementById('transition-title').innerText = d.transitionTitle;
+  document.getElementById('transition-notice').innerHTML = d.transitionNotice;
+  document.getElementById('dash-skills-list').innerHTML = d.dashSkills;
+  document.getElementById('active-integrations-list').innerHTML = d.integrations;
+
+  // Target Job Screen
+  document.getElementById('plan-box1-val').innerText = d.planBox1Val;
+  document.getElementById('plan-box1-sub').innerHTML = d.planBox1Sub;
+  document.getElementById('plan-tag').innerText = d.planTag;
+  document.getElementById('plan-box2-title').innerText = d.planBox2Title;
+  document.getElementById('plan-box2-sub').innerText = d.planBox2Sub;
+
+  // Skill Gap Screen
+  document.getElementById('gap-title').innerText = d.gapTitle;
+  document.getElementById('gap-skills-list').innerHTML = d.gapSkills;
+  document.getElementById('gap-resources-list').innerHTML = d.resourcesHTML;
+
+  // Verification Screen
+  document.getElementById('verify-main-title').innerText = d.verifyMainTitle;
+  document.getElementById('verify-learn-sub').innerText = d.verifyLearnSub;
+  document.getElementById('verify-evidence-badges').innerHTML = d.verifyBadges;
+  document.getElementById('vouch-skill-select').innerHTML = d.vouchOptions;
+  
+  // Reset Verification UI State
+  document.getElementById('step-checkpoint').className = 'step now';
+  document.getElementById('step-checkpoint').innerText = 'Checkpoint';
+  document.getElementById('btn-take-test').className = 'btn';
+  document.getElementById('btn-take-test').innerText = 'Take test';
+  document.getElementById('step-review').className = 'step';
+  document.getElementById('step-review').innerText = 'AI Review';
+  document.getElementById('terminal-box').innerText = 'Awaiting AI verification trigger...';
+  document.getElementById('run-ai-btn').disabled = false;
+  document.getElementById('run-ai-btn').innerText = 'Run AI verification';
+  document.getElementById('run-ai-btn').className = 'btn light-green';
+
+  // Modal Quiz Data
+  document.getElementById('modal-q-text').innerText = d.modalQText;
+  document.getElementById('modal-q-opts').innerHTML = d.modalQOpts;
+
+  // Passport Screen
+  document.getElementById('pass-role').innerText = d.passportRole;
+  document.getElementById('passport-skills-list').innerHTML = d.passportSkills;
+
+  // AI Resume Screen
+  document.getElementById('res-head').innerText = d.resHead;
+  document.getElementById('res-sum').innerText = d.resSum;
+  document.getElementById('resume-skill-list').innerHTML = d.resSkills;
+
+  // AI Coach Base Greeting
+  document.getElementById('ai-chat-messages').innerHTML = d.aiGreeting;
+}
+
+// Verification terminal logic
+function submitCheckpoint(){
+  const isCorrect = document.getElementById('q-correct').checked;
+  if(!isCorrect){
+    alert('Incorrect. Review the learning module concepts and try again.');
+    return;
+  }
+  closeModals();
+  document.getElementById('step-checkpoint').className = 'step done';
+  document.getElementById('step-checkpoint').innerText = 'Checkpoint ✓';
+  document.getElementById('btn-take-test').className = 'btn gray';
+  document.getElementById('btn-take-test').innerText = 'Passed ✓';
+  alert('Checkpoint passed! Now click "Run AI verification" to scan connected accounts.');
+}
+
+function runAIVerification(){
+  const t = document.getElementById('terminal-box');
+  const btn = document.getElementById('run-ai-btn');
+  btn.disabled = true;
+  btn.innerText = "Analyzing...";
+  
+  t.innerText = "Initiating read-only OAuth session with connected platforms...\n";
+  
+  setTimeout(() => {
+    t.innerText += "Scanning raw artifacts and activity logs...\n";
+  }, 700);
+
+  setTimeout(() => {
+    t.innerText += "Applying cryptographic hash to verified components...\n";
+  }, 1400);
+
+  setTimeout(() => {
+    t.innerText += "Matching findings to the target skill graph: 100% prerequisite match.\nVerdict: Skill successfully VERIFIED and cryptographically sealed.";
+    btn.innerText = "Verification Complete ✓";
+    btn.className = "btn green";
+    
+    document.getElementById('step-review').className = 'step done';
+    document.getElementById('step-review').innerText = 'AI Review ✓';
+
+    document.getElementById('passport-api-status').innerText = 'Artifacts scanned • Sealed via API';
+    document.getElementById('passport-api-tag').className = 'check';
+    document.getElementById('passport-api-tag').innerText = '✓ VERIFIED';
+    
+    // Auto-update dashboard readiness
+    document.getElementById('readiness-score').innerText = '83%';
+    document.getElementById('readiness-fill').style.width = '83%';
+    document.getElementById('readiness-text').innerText = '5 / 6 skills verified';
+
+    // Auto-update Resume with the newly verified skill
+    const resumeList = document.getElementById('resume-skill-list');
+    const newSkillTitle = document.getElementById('verify-main-title').innerText;
+    const li = document.createElement('li');
+    li.innerHTML = `<b>${newSkillTitle}:</b> Verified and cryptographically sealed via API scan.`;
+    resumeList.appendChild(li);
+
+  }, 2300);
+}
+
+function addVouch(){
+  const nameInput = document.getElementById('vouch-name');
+  const skillSelect = document.getElementById('vouch-skill-select');
+  const name = nameInput.value.trim();
+  
+  if(!name){
+    alert('Please enter a peer or mentor name.');
+    return;
+  }
+  
+  const container = document.getElementById('vouches-list');
+  const div = document.createElement('div');
+  div.className = 'row';
+  div.style.cssText = 'border:1px solid #edf0f4;padding:12px 18px;margin-top:8px;';
+  div.innerHTML = `<b style="font-size:15px">${name}</b><span class="muted" style="font-weight:600">${skillSelect.value}</span>`;
+  container.appendChild(div);
+  
+  nameInput.value = '';
+}
+</script>
+</body>
+</html>
